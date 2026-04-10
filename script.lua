@@ -6,54 +6,28 @@ local Window = Rayfield:CreateWindow({
    LoadingSubtitle = "بواسطة Leader150s",
    ConfigurationSaving = { Enabled = false },
    KeySystem = false,
-   Theme = "Ocean" -- هذا بيخليها زرقاء ملكية داكنة
+   Theme = "Ocean" 
 })
 
-local MainTab = Window:CreateTab("🏠 القائمة الرئيسية", 4483362458)
-
-MainTab:CreateSection("لوحة تحكم DMS الملكية")
+local MainTab = Window:CreateTab("🏠 القائمة", 4483362458)
 
 _G.farming = false
 MainTab:CreateToggle({
-   Name = "⚔️ تشغيل الأوتو فارم (طيران + ضرب)",
+   Name = "⚔️ تشغيل الفارم المطور (الملف الفرعي)",
    CurrentValue = false,
    Flag = "FarmToggle",
    Callback = function(Value)
       _G.farming = Value
       if Value then
-          -- محرك الفاروم المدمج
-          task.spawn(function()
-              local TweenService = game:GetService("TweenService")
-              while _G.farming do
-                  task.wait(0.1)
-                  pcall(function()
-                      for _, v in pairs(game.Workspace.Enemies:GetChildren()) do
-                          if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
-                              local targetPos = v.HumanoidRootPart.CFrame * CFrame.new(0, 10, 0)
-                              local dist = (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - targetPos.p).Magnitude
-                              local tween = TweenService:Create(game.Players.LocalPlayer.Character.HumanoidRootPart, TweenInfo.new(dist/100, Enum.EasingStyle.Linear), {CFrame = targetPos})
-                              tween:Play()
-                              tween.Completed:Wait()
-                              while _G.farming and v.Humanoid.Health > 0 do
-                                  game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 10, 0)
-                                  game:GetService("VirtualUser"):CaptureController()
-                                  game:GetService("VirtualUser"):Button1Down(Vector2.new(1280, 672))
-                                  task.wait(0.1)
-                              end
-                          end
-                      end
-                  end)
-              end
-          end)
+          -- هنا الربط مع ملفك الثاني
+          loadstring(game:HttpGet("https://raw.githubusercontent.com/Leader150s/LUR-Hub/refs/heads/main/MainFarm.lua"))()
       end
    end,
 })
 
 MainTab:CreateSection("شخصية نيكا (DMS)")
-
--- سطر الصورة المضمون
 MainTab:CreateImage({
-   Name = "LuffyImage",
+   Name = "Luffy",
    Image = "rbxassetid://13426210080", 
    Size = UDim2.new(0, 200, 0, 200),
 })
