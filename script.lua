@@ -7,49 +7,50 @@ local Window = Rayfield:CreateWindow({
    ConfigurationSaving = { Enabled = false },
    Discord = { Enabled = false },
    KeySystem = false,
-   -- هنا سر اللون الأزرق الملكي الداكن
-   Theme = "Ocean", 
+   -- تعديل الثيم ليكون أكثر وضوحاً
+   Theme = "DarkBlue", 
 })
 
--- قسم الرئيسية مع أيقونة لوفي
+-- قسم الرئيسية
 local MainTab = Window:CreateTab("🏠 الرئيسية", 4483362458) 
 
-MainTab:CreateSection("لوحة تحكم DMS")
+-- إضافة "بانر" أو صورة لوفي في البداية
+MainTab:CreateParagraph({Title = "👑 مرحباً بك يا ملك القراصنة", Content = "DMS HUB هو رفيقك لتختيم اللعبة!"})
 
-MainTab:CreateLabel("مرحباً بك يا ملك القراصنة!")
-
--- إضافة صورة لوفي (جرب هذا الرابط المباشر)
+-- محاولة إظهار صورة لوفي Gear 5 (رابط مباشر)
 MainTab:CreateImage({
    Name = "LuffyGear5",
-   Image = "rbxassetid://13426210080", -- آيدي صورة لوفي Gear 5 من روبلوكس
-   Size = UDim2.new(0, 200, 0, 200),
+   Image = "http://www.roblox.com/asset/?id=13426210080", -- رابط أصل الصورة
+   Size = UDim2.new(0, 250, 0, 250),
 })
 
--- قسم القتال (المهم)
+-- قسم القتال (هنا الأزرار اللي طلبتها)
 local CombatTab = Window:CreateTab("⚔️ القتال", 4483362458)
 
-CombatTab:CreateSection("تطوير المستوى (Farm)")
+CombatTab:CreateSection("أدوات التلفيل (Farm)")
 
 CombatTab:CreateToggle({
-   Name = "تشغيل الأوتو فارم (DMS Safe)",
+   Name = "تشغيل الأوتو فارم (تحديث نيكا 🛡️)",
    CurrentValue = false,
    Flag = "FarmToggle",
    Callback = function(Value)
       _G.farming = Value
       if Value then
+          -- استدعاء ملف الفاروم الفرعي
           loadstring(game:HttpGet("https://raw.githubusercontent.com/Leader150s/LUR-Hub/refs/heads/main/MainFarm.lua"))()
-          Rayfield:Notify({Title = "DMS HUB", Content = "تم تفعيل الهاكي الملكي.. جاري التلفيل!", Duration = 5})
+          Rayfield:Notify({Title = "DMS HUB", Content = "تم تفعيل محرك نيكا! بدأت الرحلة..", Duration = 5})
       end
    end,
 })
 
--- قسم الإعدادات
-local SettingsTab = Window:CreateTab("⚙️ الإعدادات", 4483362458)
-SettingsTab:CreateSection("تحكم في الواجهة")
-
-SettingsTab:CreateButton({
-   Name = "إغلاق السكربت",
-   Callback = function()
-       Rayfield:Destroy()
+-- زر إضافي للسرعة
+CombatTab:CreateSlider({
+   Name = "سرعة الضرب (Spam)",
+   Min = 0,
+   Max = 100,
+   CurrentValue = 50,
+   Flag = "Slider1",
+   Callback = function(Value)
+      -- هنا نربط قيمة السرعة بالكود لاحقاً
    end,
 })
