@@ -1,69 +1,60 @@
--- DMS HUB | ALL SEAS DATABASE (1, 2, 3) V18
+-- DMS HUB | UNIVERSAL DATABASE (SEA 1, 2, 3)
 local player = game.Players.LocalPlayer
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 
--- 1️⃣ قاعدة بيانات البحار (NPCs, Monsters, CFrames)
-local SeaData = {
+-- قاعدة البيانات الشاملة
+local AllSeaData = {
     ["Sea1"] = {
         {lvl = 0, name = "Bandit", qName = "BanditQuest1", qNum = 1, npc = CFrame.new(1059, 15, 1547), mob = CFrame.new(1145, 17, 1634)},
-        {lvl = 10, name = "Monkey", qName = "JungleQuest", qNum = 1, npc = CFrame.new(-1598, 36, 153), mob = CFrame.new(-1623, 36, 147)},
-        {lvl = 30, name = "Pirate", qName = "BuggyQuest1", qNum = 1, npc = CFrame.new(-1141, 4, 3827), mob = CFrame.new(-1141, 4, 3827)},
-        -- يمكنك إضافة المزيد من بحر 1 هنا
+        {lvl = 10, name = "Monkey", qName = "JungleQuest", qNum = 1, npc = CFrame.new(-1598, 36, 153), mob = CFrame.new(-1623, 36, 147)}
     },
     ["Sea2"] = {
-        {lvl = 700, name = "Raider", qName = "Area1Quest", qNum = 1, npc = CFrame.new(-427, 72, 183), mob = CFrame.new(-427, 72, 183)},
-        {lvl = 1000, name = "Don Swan", qName = "SwanQuest", qNum = 1, npc = CFrame.new(2289, 15, 905), mob = CFrame.new(2289, 15, 905)},
+        {lvl = 700, name = "Raider", qName = "Area1Quest", qNum = 1, npc = CFrame.new(-427, 72, 183), mob = CFrame.new(-427, 72, 183)}
     },
     ["Sea3"] = {
         {lvl = 1500, name = "Pirate Millionaire", qName = "TurtleQuest1", qNum = 1, npc = CFrame.new(-13242, 531, -7562), mob = CFrame.new(-13242, 531, -7562)},
-        {lvl = 2450, name = "Candy Pirate", qName = "CandyQuest1", qNum = 1, npc = CFrame.new(-1148, 14, -12052), mob = CFrame.new(-1115, 50, -12300)},
-        {lvl = 2500, name = "Subordinate", qName = "CakeQuest1", qNum = 1, npc = CFrame.new(-2022, 37, -12140), mob = CFrame.new(-2022, 37, -12140)},
+        {lvl = 2500, name = "Cookie Pirate", qName = "CakeQuest1", qNum = 1, npc = CFrame.new(-2022, 37, -12140), mob = CFrame.new(-2100, 40, -12200)},
+        {lvl = 2800, name = "Cake Guard", qName = "CakeQuest2", qNum = 1, npc = CFrame.new(-2022, 37, -12140), mob = CFrame.new(-2340, 40, -12100)}
     }
 }
 
--- 2️⃣ وظيفة فحص البحر الحالي
-local function getCurrentSea()
-    local placeId = game.PlaceId
-    if placeId == 2753915549 then return "Sea1"
-    elseif placeId == 4442245419 then return "Sea2"
-    elseif placeId == 7449925032 then return "Sea3"
-    end
+local function getSea()
+    local pId = game.PlaceId
+    if pId == 2753915549 then return "Sea1"
+    elseif pId == 4442245419 then return "Sea2"
+    elseif pId == 7449925032 then return "Sea3" end
 end
 
--- 3️⃣ اختيار المهمة المناسبة لليفلك في بحرك الحالي
-function getSmartQuest()
+local function getMyQuest()
     local myLvl = player.Data.Level.Value
-    local sea = getCurrentSea()
-    local mySeaData = SeaData[sea]
-    local bestMatch = mySeaData[1]
-
-    for _, data in pairs(mySeaData) do
-        if myLvl >= data.lvl then
-            bestMatch = data
-        end
+    local sea = getSea()
+    local data = AllSeaData[sea]
+    local best = data[1]
+    for _, v in pairs(data) do
+        if myLvl >= v.lvl then best = v end
     end
-    return bestMatch
+    return best
 end
 
--- 4️⃣ محرك الفارم (الطيران والجلد)
+local function tween(target)
+    local dist = (player.Character.HumanoidRootPart.Position - target.p).Magnitude
+    local t = TweenService:Create(player.Character.HumanoidRootPart, TweenInfo.new(dist/150, Enum.EasingStyle.Linear), {CFrame = target})
+    t:Play()
+    return t
+end
+
 task.spawn(function()
     while _G.farming do
         task.wait(0.5)
         pcall(function()
-            local q = getSmartQuest()
-            
-            -- إذا ما عندك مهمة -> طر للـ NPC
+            local q = getMyQuest()
             if not player.PlayerGui.Main.Quest.Visible then
-                local dist = (player.Character.HumanoidRootPart.Position - q.npc.p).Magnitude
-                TweenService:Create(player.Character.HumanoidRootPart, TweenInfo.new(dist/150), {CFrame = q.npc}):Play()
-                task.wait(dist/150 + 0.5)
+                local tw = tween(q.npc)
+                if tw then tw.Completed:Wait() end
                 ReplicatedStorage.Remotes.CommF_:InvokeServer("StartQuest", q.qName, q.qNum)
             else
-                -- طر للوحش واجلده
-                local dist = (player.Character.HumanoidRootPart.Position - q.mob.p).Magnitude
-                TweenService:Create(player.Character.HumanoidRootPart, TweenInfo.new(dist/150), {CFrame = q.mob}):Play()
-                
+                tween(q.mob)
                 for _, v in pairs(game.Workspace.Enemies:GetChildren()) do
                     if v.Name == q.name and v.Humanoid.Health > 0 then
                         while _G.farming and v.Humanoid.Health > 0 and player.PlayerGui.Main.Quest.Visible do
