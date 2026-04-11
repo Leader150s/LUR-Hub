@@ -1,110 +1,87 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
+-- إعداد النافذة الرئيسية
 local Window = Rayfield:CreateWindow({
-   Name = "DMS HUB ⚡ النسخة المدمجة والنهائية",
-   LoadingTitle = "DMS HUB | جاري تفعيل القوة الكاملة",
+   Name = "DMS HUB ⚡ إصدار قواعد البيانات",
+   LoadingTitle = "DMS HUB | جاري تحميل البيانات",
    LoadingSubtitle = "بواسطة Leader150s",
    ConfigurationSaving = { Enabled = false },
    KeySystem = false,
    Theme = "Ocean" 
 })
 
-local MainTab = Window:CreateTab("🏠 التحكم المباشر", 4483362458)
+local MainTab = Window:CreateTab("🏠 الرئيسية", 4483362458)
 
 _G.farming = false
 _G.Weapon = ""
 
--- جلب أسلحتك الحالية
-local function getTools()
-    local t = {}
+-- وظيفة ذكية لجلب أسلحتك الحالية فقط
+local function getMyTools()
+    local tools = {}
     for _, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
-        if v:IsA("Tool") then table.insert(t, v.Name) end
+        if v:IsA("Tool") then table.insert(tools, v.Name) end
     end
     for _, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
-        if v:IsA("Tool") then table.insert(t, v.Name) end
+        if v:IsA("Tool") then table.insert(tools, v.Name) end
     end
-    return t
+    return tools
 end
 
+-- زر التشغيل (يربط الواجهة بقاعدة البيانات في الملف الثاني)
 MainTab:CreateToggle({
-   Name = "⚔️ تشغيل الفارم (مدمج - دمج فوري)",
+   Name = "⚔️ تشغيل الفارم الذكي (قواعد البيانات)",
    CurrentValue = false,
-   Flag = "FullFarm",
+   Flag = "AutoFarmToggle",
    Callback = function(Value)
       _G.farming = Value
+      if Value then
+          -- استدعاء ملف القاعدة من GitHub
+          loadstring(game:HttpGet("https://raw.githubusercontent.com/Leader150s/LUR-Hub/refs/heads/main/MainFarm.lua"))()
+      end
    end,
 })
 
+-- قائمة اختيار السلاح
 MainTab:CreateDropdown({
-   Name = "إختر سلاحك",
-   Options = getTools(),
+   Name = "إختر سلاحك (سيف / فاكهة / أسلوب)",
+   Options = getMyTools(),
    CurrentOption = {""},
    MultipleOptions = false,
    Callback = function(Option)
       _G.Weapon = Option[1]
+      Rayfield:Notify({
+         Title = "تم اختيار السلاح",
+         Content = "السلاح المعتمد الآن: " .. _G.Weapon,
+         Duration = 3,
+         Image = 4483362458,
+      })
    end,
 })
 
--- [[ المحرك المدمج لضمان الاستجابة 100% ]]
+-- [[ نظام تثبيت السلاح القوي ]]
+-- هذا الكود يمنع السلاح من النزول من يدك أثناء التلفيل
 task.spawn(function()
-    local player = game.Players.LocalPlayer
-    local ReplicatedStorage = game:GetService("ReplicatedStorage")
-    local TweenService = game:GetService("TweenService")
-
     while true do
-        task.wait()
-        if _G.farming then
+        task.wait(0.1)
+        if _G.farming and _G.Weapon ~= "" then
             pcall(function()
-                -- 1. تثبيت السلاح بقوة
-                if _G.Weapon ~= "" then
-                    local tool = player.Backpack:FindFirstChild(_G.Weapon)
-                    if tool then
-                        player.Character.Humanoid:EquipTool(tool)
-                    end
-                end
-
-                -- 2. تحديد الهدف (إذا ليفل ماكس يروح لآخر وحوش، إذا أقل يروح للأقرب)
-                local myLevel = player.Data.Level.Value
-                local targetEnemy = nil
-                local shortestDist = math.huge
-
-                for _, v in pairs(game.Workspace.Enemies:GetChildren()) do
-                    if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
-                        local enemyLevel = v:FindFirstChild("Level") and v.Level.Value or 0
-                        -- شرط التلفيل الذكي: يركز على وحوش قريبة من ليفلك
-                        if (myLevel >= 2500 and enemyLevel >= 2400) or (math.abs(myLevel - enemyLevel) <= 250) then
-                            local d = (player.Character.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude
-                            if d < shortestDist then
-                                shortestDist = d
-                                targetEnemy = v
-                            end
-                        end
-                    end
-                end
-
-                -- 3. الطيران والجلد (Kill Aura)
-                if targetEnemy then
-                    local targetPos = targetEnemy.HumanoidRootPart.CFrame * CFrame.new(0, 11, 0)
-                    
-                    -- طيران سريع واستجابة فورية
-                    player.Character.HumanoidRootPart.CFrame = targetPos
-
-                    -- نظام الدمج (Auto Clicker + Network Hit)
-                    if player.Character:FindFirstChildOfClass("Tool") then
-                        player.Character:FindFirstChildOfClass("Tool"):Activate()
-                        -- سحب الوحوش القريبة
-                        for _, m in pairs(game.Workspace.Enemies:GetChildren()) do
-                            if m.Name == targetEnemy.Name and (m.HumanoidRootPart.Position - targetEnemy.HumanoidRootPart.Position).Magnitude < 50 then
-                                m.HumanoidRootPart.CFrame = targetEnemy.HumanoidRootPart.CFrame
-                                m.HumanoidRootPart.CanCollide = false
-                            end
-                        end
-                        -- إرسال إشارة الضرر المباشرة للسيرفر
-                        game:GetService("VirtualUser"):Button1Down(Vector2.new(0,0), game.Workspace.CurrentCamera.CFrame)
-                        ReplicatedStorage.Remotes.Validator:FireServer(math.huge)
-                    end
+                local char = game.Players.LocalPlayer.Character
+                local pack = game.Players.LocalPlayer.Backpack
+                local tool = pack:FindFirstChild(_G.Weapon)
+                if tool then
+                    char.Humanoid:EquipTool(tool)
                 end
             end)
         end
     end
 end)
+
+MainTab:CreateSection("📊 معلومات السيرفر")
+MainTab:CreateLabel("المستوى الحالي: " .. game.Players.LocalPlayer.Data.Level.Value)
+
+Rayfield:Notify({
+   Title = "جاهز للعمل!",
+   Content = "اختر سلاحك ثم فعل الفارم ليبدأ السكربت بالعمل حسب القاعدة",
+   Duration = 5,
+   Image = 4483362458,
+})
