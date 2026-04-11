@@ -1,110 +1,82 @@
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+-- DMS HUB | ALL SEAS DATABASE (1, 2, 3) V18
+local player = game.Players.LocalPlayer
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TweenService = game:GetService("TweenService")
 
-local Window = Rayfield:CreateWindow({
-   Name = "DMS HUB ⚡ النسخة المدمجة والنهائية",
-   LoadingTitle = "DMS HUB | جاري تفعيل القوة الكاملة",
-   LoadingSubtitle = "بواسطة Leader150s",
-   ConfigurationSaving = { Enabled = false },
-   KeySystem = false,
-   Theme = "Ocean" 
-})
+-- 1️⃣ قاعدة بيانات البحار (NPCs, Monsters, CFrames)
+local SeaData = {
+    ["Sea1"] = {
+        {lvl = 0, name = "Bandit", qName = "BanditQuest1", qNum = 1, npc = CFrame.new(1059, 15, 1547), mob = CFrame.new(1145, 17, 1634)},
+        {lvl = 10, name = "Monkey", qName = "JungleQuest", qNum = 1, npc = CFrame.new(-1598, 36, 153), mob = CFrame.new(-1623, 36, 147)},
+        {lvl = 30, name = "Pirate", qName = "BuggyQuest1", qNum = 1, npc = CFrame.new(-1141, 4, 3827), mob = CFrame.new(-1141, 4, 3827)},
+        -- يمكنك إضافة المزيد من بحر 1 هنا
+    },
+    ["Sea2"] = {
+        {lvl = 700, name = "Raider", qName = "Area1Quest", qNum = 1, npc = CFrame.new(-427, 72, 183), mob = CFrame.new(-427, 72, 183)},
+        {lvl = 1000, name = "Don Swan", qName = "SwanQuest", qNum = 1, npc = CFrame.new(2289, 15, 905), mob = CFrame.new(2289, 15, 905)},
+    },
+    ["Sea3"] = {
+        {lvl = 1500, name = "Pirate Millionaire", qName = "TurtleQuest1", qNum = 1, npc = CFrame.new(-13242, 531, -7562), mob = CFrame.new(-13242, 531, -7562)},
+        {lvl = 2450, name = "Candy Pirate", qName = "CandyQuest1", qNum = 1, npc = CFrame.new(-1148, 14, -12052), mob = CFrame.new(-1115, 50, -12300)},
+        {lvl = 2500, name = "Subordinate", qName = "CakeQuest1", qNum = 1, npc = CFrame.new(-2022, 37, -12140), mob = CFrame.new(-2022, 37, -12140)},
+    }
+}
 
-local MainTab = Window:CreateTab("🏠 التحكم المباشر", 4483362458)
-
-_G.farming = false
-_G.Weapon = ""
-
--- جلب أسلحتك الحالية
-local function getTools()
-    local t = {}
-    for _, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
-        if v:IsA("Tool") then table.insert(t, v.Name) end
+-- 2️⃣ وظيفة فحص البحر الحالي
+local function getCurrentSea()
+    local placeId = game.PlaceId
+    if placeId == 2753915549 then return "Sea1"
+    elseif placeId == 4442245419 then return "Sea2"
+    elseif placeId == 7449925032 then return "Sea3"
     end
-    for _, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
-        if v:IsA("Tool") then table.insert(t, v.Name) end
-    end
-    return t
 end
 
-MainTab:CreateToggle({
-   Name = "⚔️ تشغيل الفارم (مدمج - دمج فوري)",
-   CurrentValue = false,
-   Flag = "FullFarm",
-   Callback = function(Value)
-      _G.farming = Value
-   end,
-})
+-- 3️⃣ اختيار المهمة المناسبة لليفلك في بحرك الحالي
+function getSmartQuest()
+    local myLvl = player.Data.Level.Value
+    local sea = getCurrentSea()
+    local mySeaData = SeaData[sea]
+    local bestMatch = mySeaData[1]
 
-MainTab:CreateDropdown({
-   Name = "إختر سلاحك",
-   Options = getTools(),
-   CurrentOption = {""},
-   MultipleOptions = false,
-   Callback = function(Option)
-      _G.Weapon = Option[1]
-   end,
-})
-
--- [[ المحرك المدمج لضمان الاستجابة 100% ]]
-task.spawn(function()
-    local player = game.Players.LocalPlayer
-    local ReplicatedStorage = game:GetService("ReplicatedStorage")
-    local TweenService = game:GetService("TweenService")
-
-    while true do
-        task.wait()
-        if _G.farming then
-            pcall(function()
-                -- 1. تثبيت السلاح بقوة
-                if _G.Weapon ~= "" then
-                    local tool = player.Backpack:FindFirstChild(_G.Weapon)
-                    if tool then
-                        player.Character.Humanoid:EquipTool(tool)
-                    end
-                end
-
-                -- 2. تحديد الهدف (إذا ليفل ماكس يروح لآخر وحوش، إذا أقل يروح للأقرب)
-                local myLevel = player.Data.Level.Value
-                local targetEnemy = nil
-                local shortestDist = math.huge
-
-                for _, v in pairs(game.Workspace.Enemies:GetChildren()) do
-                    if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
-                        local enemyLevel = v:FindFirstChild("Level") and v.Level.Value or 0
-                        -- شرط التلفيل الذكي: يركز على وحوش قريبة من ليفلك
-                        if (myLevel >= 2500 and enemyLevel >= 2400) or (math.abs(myLevel - enemyLevel) <= 250) then
-                            local d = (player.Character.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude
-                            if d < shortestDist then
-                                shortestDist = d
-                                targetEnemy = v
-                            end
-                        end
-                    end
-                end
-
-                -- 3. الطيران والجلد (Kill Aura)
-                if targetEnemy then
-                    local targetPos = targetEnemy.HumanoidRootPart.CFrame * CFrame.new(0, 11, 0)
-                    
-                    -- طيران سريع واستجابة فورية
-                    player.Character.HumanoidRootPart.CFrame = targetPos
-
-                    -- نظام الدمج (Auto Clicker + Network Hit)
-                    if player.Character:FindFirstChildOfClass("Tool") then
-                        player.Character:FindFirstChildOfClass("Tool"):Activate()
-                        -- سحب الوحوش القريبة
-                        for _, m in pairs(game.Workspace.Enemies:GetChildren()) do
-                            if m.Name == targetEnemy.Name and (m.HumanoidRootPart.Position - targetEnemy.HumanoidRootPart.Position).Magnitude < 50 then
-                                m.HumanoidRootPart.CFrame = targetEnemy.HumanoidRootPart.CFrame
-                                m.HumanoidRootPart.CanCollide = false
-                            end
-                        end
-                        -- إرسال إشارة الضرر المباشرة للسيرفر
-                        game:GetService("VirtualUser"):Button1Down(Vector2.new(0,0), game.Workspace.CurrentCamera.CFrame)
-                        ReplicatedStorage.Remotes.Validator:FireServer(math.huge)
-                    end
-                end
-            end)
+    for _, data in pairs(mySeaData) do
+        if myLvl >= data.lvl then
+            bestMatch = data
         end
+    end
+    return bestMatch
+end
+
+-- 4️⃣ محرك الفارم (الطيران والجلد)
+task.spawn(function()
+    while _G.farming do
+        task.wait(0.5)
+        pcall(function()
+            local q = getSmartQuest()
+            
+            -- إذا ما عندك مهمة -> طر للـ NPC
+            if not player.PlayerGui.Main.Quest.Visible then
+                local dist = (player.Character.HumanoidRootPart.Position - q.npc.p).Magnitude
+                TweenService:Create(player.Character.HumanoidRootPart, TweenInfo.new(dist/150), {CFrame = q.npc}):Play()
+                task.wait(dist/150 + 0.5)
+                ReplicatedStorage.Remotes.CommF_:InvokeServer("StartQuest", q.qName, q.qNum)
+            else
+                -- طر للوحش واجلده
+                local dist = (player.Character.HumanoidRootPart.Position - q.mob.p).Magnitude
+                TweenService:Create(player.Character.HumanoidRootPart, TweenInfo.new(dist/150), {CFrame = q.mob}):Play()
+                
+                for _, v in pairs(game.Workspace.Enemies:GetChildren()) do
+                    if v.Name == q.name and v.Humanoid.Health > 0 then
+                        while _G.farming and v.Humanoid.Health > 0 and player.PlayerGui.Main.Quest.Visible do
+                            player.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 11, 0)
+                            if player.Character:FindFirstChildOfClass("Tool") then
+                                player.Character:FindFirstChildOfClass("Tool"):Activate()
+                                ReplicatedStorage.Remotes.Validator:FireServer(math.huge)
+                            end
+                            task.wait(0.01)
+                        end
+                    end
+                end
+            end
+        end)
     end
 end)
