@@ -2,34 +2,34 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
    Name = "DMS HUB ⚡ إصدار ملك القراصنة",
-   LoadingTitle = "DMS HUB | نظام الدمج التلقائي",
+   LoadingTitle = "DMS HUB | نظام المهمات التلقائي",
    LoadingSubtitle = "بواسطة Leader150s",
    ConfigurationSaving = { Enabled = false },
    KeySystem = false,
    Theme = "Ocean" 
 })
 
-local MainTab = Window:CreateTab("🏠 القائمة", 4483362458)
+local MainTab = Window:CreateTab("🏠 الرئيسية", 4483362458)
 
 _G.farming = false
 _G.Weapon = ""
 
--- تحديث تلقائي لقائمة أسلحتك
-local function getTools()
-    local tools = {}
+-- وظيفة تجلب أسلحتك الحالية
+local function getMyTools()
+    local t = {}
     for _, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
-        if v:IsA("Tool") then table.insert(tools, v.Name) end
+        if v:IsA("Tool") then table.insert(t, v.Name) end
     end
     for _, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
-        if v:IsA("Tool") then table.insert(tools, v.Name) end
+        if v:IsA("Tool") then table.insert(t, v.Name) end
     end
-    return tools
+    return t
 end
 
 MainTab:CreateToggle({
-   Name = "⚔️ تشغيل الأوتو دمج + فارم",
+   Name = "⚔️ تشغيل الفارم الذكي (مهمات + دمج + تثبيت)",
    CurrentValue = false,
-   Flag = "AutoDamageToggle",
+   Flag = "SmartFarm",
    Callback = function(Value)
       _G.farming = Value
       if Value then
@@ -39,11 +39,13 @@ MainTab:CreateToggle({
 })
 
 MainTab:CreateDropdown({
-   Name = "إختر سلاح الدمج",
-   Options = getTools(),
+   Name = "إختر سلاحك (سيتم تثبيته)",
+   Options = getMyTools(),
    CurrentOption = {""},
    MultipleOptions = false,
    Callback = function(Option)
       _G.Weapon = Option[1]
    end,
 })
+
+MainTab:CreateLabel("تنبيه: السكربت سيختار المهمة المناسبة لليفلك تلقائياً")
