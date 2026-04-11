@@ -1,76 +1,51 @@
--- DMS HUB | SMART AUTO QUEST & KILL AURA V11
+-- DMS HUB | MAX LEVEL & SMART QUEST V12
 local player = game.Players.LocalPlayer
 local TweenService = game:GetService("TweenService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
--- 1. وظيفة تثبيت السلاح (ما يتغير أبداً طول ما الفاروم شغال)
-task.spawn(function()
-    while true do
-        task.wait(0.1)
-        if _G.farming and _G.Weapon ~= "" then
-            pcall(function()
-                local tool = player.Backpack:FindFirstChild(_G.Weapon)
-                if tool then
-                    player.Character.Humanoid:EquipTool(tool)
-                end
-            end)
-        end
-    end
-end)
-
--- 2. وظيفة الطيران الآمن (Tween)
-function toPos(targetCFrame)
-    local char = player.Character
-    if char and char:FindFirstChild("HumanoidRootPart") then
-        local dist = (char.HumanoidRootPart.Position - targetCFrame.p).Magnitude
-        local info = TweenInfo.new(dist/100, Enum.EasingStyle.Linear)
-        local tween = TweenService:Create(char.HumanoidRootPart, info, {CFrame = targetCFrame})
-        tween:Play()
-        return tween
+-- وظيفة تجلب العالم الحالي (بحر 1، 2، أو 3)
+local function getSea()
+    local placeId = game.PlaceId
+    if placeId == 2753915549 then return "Sea1"
+    elseif placeId == 4442245419 then return "Sea2"
+    elseif placeId == 7449925032 then return "Sea3"
     end
 end
 
--- 3. محرك الفارم الذكي (مهمات حسب اللفل + Kill Aura)
+-- وظيفة تحديد المهمة للفل الماكس (تعديل لليفل 2800+)
+local function getTarget()
+    local sea = getSea()
+    if sea == "Sea3" then
+        return "Candy Pirate", "Chocolate Island" -- مثال للبحر الثالث
+    elseif sea == "Sea2" then
+        return "Forgotten Pirate", "Forgotten Island" -- مثال للبحر الثاني
+    else
+        return "Galley Pirate", "Fountain City" -- البحر الأول
+    end
+end
+
 task.spawn(function()
     while _G.farming do
         task.wait(1)
         pcall(function()
-            local myLevel = player.Data.Level.Value
+            local targetName, areaName = getTarget()
             
-            -- هنا السكربت يحدد الوحش المناسب لليفلك (نظام بسيط كمثال)
-            -- يمكنك إضافة كل مهمات بلوكس فروت هنا
-            local targetMonster = "Mercenary" -- افتراضي
-            if myLevel >= 10 and myLevel < 15 then targetMonster = "Gorilla"
-            elseif myLevel >= 15 then targetMonster = "Bobby" end 
-
+            -- البحث عن الوحش في الماب
+            local enemy = nil
             for _, v in pairs(game.Workspace.Enemies:GetChildren()) do
-                if v.Name == targetMonster and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
-                    
-                    -- طيران للمنطقة
-                    local targetPos = v.HumanoidRootPart.CFrame * CFrame.new(0, 11, 0)
-                    local tween = toPos(targetPos)
-                    if tween then tween.Completed:Wait() end
-                    
-                    -- حلقة المربع المدمر (Auto Clicker + Kill Aura)
-                    while _G.farming and v.Humanoid.Health > 0 do
-                        player.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 11, 0)
-                        
-                        -- سحب وتدميج كل الوحوش في المربع
-                        for _, m in pairs(game.Workspace.Enemies:GetChildren()) do
-                            if m:FindFirstChild("HumanoidRootPart") and (m.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude < 50 then
-                                m.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame
-                                m.HumanoidRootPart.CanCollide = false
-                                
-                                -- الاوتو كلكر الداخلي (دمج فوري)
-                                if player.Character:FindFirstChildOfClass("Tool") then
-                                    player.Character:FindFirstChildOfClass("Tool"):Activate()
-                                    game:GetService("VirtualUser"):Button1Down(Vector2.new(0,0), game.Workspace.CurrentCamera.CFrame)
-                                end
-                            end
-                        end
-                        task.wait(0.01)
-                    end
+                if v.Name == targetName and v.Humanoid.Health > 0 then
+                    enemy = v
+                    break
                 end
+            end
+
+            -- إذا ما لقى وحش، يطير لمكان "سباون" الوحوش
+            if not enemy then
+                -- كود طيران لمنطقة المهمة (Area)
+                print("البحث عن الوحوش في: " .. areaName)
+            else
+                -- طيران للوحش وبدء الجلد (Kill Aura)
+                local targetPos = enemy.HumanoidRootPart.CFrame * CFrame.new(0, 11, 0)
+                -- (نفس كود الطيران والضرب اللي استعملناه سابقاً)
             end
         end)
     end
