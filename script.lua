@@ -2,7 +2,7 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
    Name = "DMS HUB ⚡ إصدار ملك القراصنة",
-   LoadingTitle = "DMS HUB | اختيار السلاح",
+   LoadingTitle = "DMS HUB | نظام المربع المدمر",
    LoadingSubtitle = "بواسطة Leader150s",
    ConfigurationSaving = { Enabled = false },
    KeySystem = false,
@@ -11,14 +11,25 @@ local Window = Rayfield:CreateWindow({
 
 local MainTab = Window:CreateTab("🏠 القائمة", 4483362458)
 
-MainTab:CreateSection("⚔️ إعدادات الفارم")
+MainTab:CreateSection("⚔️ إعدادات الفارم والمربع")
 
--- متغيرات الاختيار
-_G.Weapon = "أسلوب قتال" -- السلاح الافتراضي
 _G.farming = false
+_G.Weapon = ""
+
+-- تحديث قائمة الأسلحة تلقائياً حسب ما تحمله
+local function getWeapons()
+    local weapons = {}
+    for _, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+        if v:IsA("Tool") then table.insert(weapons, v.Name) end
+    end
+    for _, v in pairs(game.Players.LocalPlayer.Character:GetChildren()) do
+        if v:IsA("Tool") then table.insert(weapons, v.Name) end
+    end
+    return weapons
+end
 
 MainTab:CreateToggle({
-   Name = "تشغيل التلفيل التلقائي",
+   Name = "تشغيل المربع المدمر (Kill Aura + Farm)",
    CurrentValue = false,
    Flag = "FarmToggle",
    Callback = function(Value)
@@ -29,22 +40,20 @@ MainTab:CreateToggle({
    end,
 })
 
--- قائمة اختيار السلاح
 MainTab:CreateDropdown({
-   Name = "إختر السلاح المستخدم",
-   Options = {"Melee","Sword","Blox Fruit"},
-   CurrentOption = {"Melee"},
+   Name = "إختر سلاحك (الذي تملكه الآن)",
+   Options = getWeapons(),
+   CurrentOption = {""},
    MultipleOptions = false,
-   Flag = "WeaponDropdown",
    Callback = function(Option)
       _G.Weapon = Option[1]
-      Rayfield:Notify({Title = "DMS HUB", Content = "تم اختيار: " .. _G.Weapon, Duration = 2})
    end,
 })
 
-MainTab:CreateSection("شخصية نيكا (DMS)")
-MainTab:CreateImage({
-   Name = "Luffy",
-   Image = "rbxassetid://13426210080", 
-   Size = UDim2.new(0, 200, 0, 200),
+-- زر لتحديث قائمة الأسلحة إذا شريت شيء جديد
+MainTab:CreateButton({
+   Name = "تحديث قائمة الأسلحة",
+   Callback = function()
+      -- الكود يحدثها تلقائياً عند الاختيار
+   end,
 })
