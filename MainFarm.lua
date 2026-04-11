@@ -1,68 +1,72 @@
--- DMS HUB | REAL AUTO QUEST & LEVEL FARM V15
+-- DMS HUB | AUTO LEVEL FARM & REAL DAMAGE V16
 local player = game.Players.LocalPlayer
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
 
--- قاعدة بيانات المهمات واللفل (تلقائية)
-function getQuestData()
-    local lvl = player.Data.Level.Value
-    if lvl < 10 then
-        return "Bandit", "BanditQuest1", 1, "Rebel"
-    elseif lvl >= 10 and lvl < 15 then
-        return "Monkey", "JungleQuest", 1, "Monkey"
-    elseif lvl >= 15 and lvl < 30 then
-        return "Gorilla", "JungleQuest", 2, "Gorilla"
-    elseif lvl >= 30 and lvl < 40 then
-        return "Pirate", "BuggyQuest1", 1, "Pirate"
-    -- إذا كنت ليفل ماكس أو عالي جداً يذهب لآخر مهمة متاحة في العالم
-    elseif lvl >= 2500 then 
-        return "Candy Pirate", "CandyQuest", 1, "Candy Pirate"
-    else
-        -- نظام تلقائي للبحث عن أقرب وحش يناسب اللفل إذا لم يتم تحديد اسم المهمة
-        return "Enemies", "Quest", 1, "Enemies"
+-- وظيفة الطيران السلس (آمن ضد الطرد)
+local function toPos(targetCFrame)
+    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+        local dist = (player.Character.HumanoidRootPart.Position - targetCFrame.p).Magnitude
+        local speed = 120 -- سرعة آمنة
+        local tween = TweenService:Create(player.Character.HumanoidRootPart, TweenInfo.new(dist/speed, Enum.EasingStyle.Linear), {CFrame = targetCFrame})
+        tween:Play()
+        return tween
     end
-end
-
--- وظيفة أخذ المهمة من السيرفر
-function takeQuest(questName, level)
-    ReplicatedStorage.Remotes.CommF_:InvokeServer("StartQuest", questName, level)
 end
 
 task.spawn(function()
     while _G.farming do
         task.wait(0.5)
         pcall(function()
-            local monsterName, questName, questLevel, mobTitle = getQuestData()
+            local myLevel = player.Data.Level.Value
+            local targetEnemy = nil
+            local minDistance = math.huge
 
-            -- 1. التأكد من وجود مهمة (إذا ما عندك مهمة يروح ياخذها)
-            if not player.PlayerGui.Main.Quest.Visible then
-                -- طيران لمكان المهمة (هنا نضع إحداثيات المهمة أو نطير لأقرب NPC)
-                takeQuest(questName, questLevel)
+            -- البحث عن الوحوش التي تناسب ليفلك في كامل الماب
+            for _, v in pairs(game.Workspace.Enemies:GetChildren()) do
+                if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
+                    -- جلب لفل الوحش للتأكد أنه مناسب (أو قريب من ليفلك)
+                    local enemyLevel = v:FindFirstChild("Level") and v.Level.Value or 0
+                    
+                    -- إذا كنت ماكس (2550+) يركز على وحوش الجزيرة الأخيرة
+                    -- وإذا كنت أقل، يركز على الوحوش التي لفلها قريب من ليفلك
+                    if (myLevel >= 2500 and enemyLevel >= 2400) or (math.abs(myLevel - enemyLevel) <= 200) then
+                        local dist = (player.Character.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude
+                        if dist < minDistance then
+                            minDistance = dist
+                            targetEnemy = v
+                        end
+                    end
+                end
             end
 
-            -- 2. البحث عن الوحش الخاص بالمهمة
-            for _, v in pairs(game.Workspace.Enemies:GetChildren()) do
-                if v.Name == monsterName and v.Humanoid.Health > 0 then
+            -- إذا وجد الوحش المناسب، ابدأ العملية
+            if targetEnemy then
+                -- 1. الطيران لموقع الوحش
+                local targetPos = targetEnemy.HumanoidRootPart.CFrame * CFrame.new(0, 11, 0)
+                local fly = toPos(targetPos)
+                if fly then fly.Completed:Wait() end
+
+                -- 2. حلقة القتل والدمج (Kill Aura)
+                while _G.farming and targetEnemy.Humanoid.Health > 0 do
+                    player.Character.HumanoidRootPart.CFrame = targetEnemy.HumanoidRootPart.CFrame * CFrame.new(0, 11, 0)
                     
-                    -- طيران سلس
-                    local targetPos = v.HumanoidRootPart.CFrame * CFrame.new(0, 11, 0)
-                    if (player.Character.HumanoidRootPart.Position - targetPos.p).Magnitude > 5 then
-                        TweenService:Create(player.Character.HumanoidRootPart, TweenInfo.new(1, Enum.EasingStyle.Linear), {CFrame = targetPos}):Play()
+                    -- تجميع الوحوش (Magnet)
+                    for _, m in pairs(game.Workspace.Enemies:GetChildren()) do
+                        if m.Name == targetEnemy.Name and (m.HumanoidRootPart.Position - targetEnemy.HumanoidRootPart.Position).Magnitude < 50 then
+                            m.HumanoidRootPart.CFrame = targetEnemy.HumanoidRootPart.CFrame
+                            m.HumanoidRootPart.CanCollide = false
+                        end
                     end
 
-                    -- 3. الجلد (دمج حقيقي)
-                    while _G.farming and v.Humanoid.Health > 0 and player.PlayerGui.Main.Quest.Visible do
-                        player.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 11, 0)
-                        
-                        -- دمج سريع جداً (Kill Aura)
-                        if player.Character:FindFirstChildOfClass("Tool") then
-                            player.Character:FindFirstChildOfClass("Tool"):Activate()
-                            -- إرسال ضربة مباشرة للسيرفر
-                            ReplicatedStorage.Remotes.Validator:FireServer(math.huge)
-                            game:GetService("VirtualUser"):Button1Down(Vector2.new(0,0), game.Workspace.CurrentCamera.CFrame)
-                        end
-                        task.wait(0.01)
+                    -- تنفيذ الدمج التلقائي (هنا الحل النهائي للدمج)
+                    if player.Character:FindFirstChildOfClass("Tool") then
+                        player.Character:FindFirstChildOfClass("Tool"):Activate()
+                        -- ضربة السيرفر المباشرة (هذه التي تظهر أرقام الدمج)
+                        ReplicatedStorage.Remotes.Validator:FireServer(math.huge)
+                        game:GetService("VirtualUser"):Button1Down(Vector2.new(0,0), game.Workspace.CurrentCamera.CFrame)
                     end
+                    task.wait(0.01)
                 end
             end
         end)
