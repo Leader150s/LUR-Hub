@@ -2,7 +2,7 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
    Name = "DMS HUB ⚡ إصدار ملك القراصنة",
-   LoadingTitle = "DMS HUB | نظام المهمات التلقائي",
+   LoadingTitle = "DMS HUB | جاري الربط المباشر",
    LoadingSubtitle = "بواسطة Leader150s",
    ConfigurationSaving = { Enabled = false },
    KeySystem = false,
@@ -14,8 +14,8 @@ local MainTab = Window:CreateTab("🏠 الرئيسية", 4483362458)
 _G.farming = false
 _G.Weapon = ""
 
--- وظيفة تجلب أسلحتك الحالية
-local function getMyTools()
+-- جلب أسلحتك الحالية
+local function getTools()
     local t = {}
     for _, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
         if v:IsA("Tool") then table.insert(t, v.Name) end
@@ -27,9 +27,9 @@ local function getMyTools()
 end
 
 MainTab:CreateToggle({
-   Name = "⚔️ تشغيل الفارم الذكي (مهمات + دمج + تثبيت)",
+   Name = "⚔️ تشغيل الفارم الذكي",
    CurrentValue = false,
-   Flag = "SmartFarm",
+   Flag = "FarmToggle",
    Callback = function(Value)
       _G.farming = Value
       if Value then
@@ -39,8 +39,8 @@ MainTab:CreateToggle({
 })
 
 MainTab:CreateDropdown({
-   Name = "إختر سلاحك (سيتم تثبيته)",
-   Options = getMyTools(),
+   Name = "إختر سلاحك (سيتم القفل عليه)",
+   Options = getTools(),
    CurrentOption = {""},
    MultipleOptions = false,
    Callback = function(Option)
@@ -48,4 +48,17 @@ MainTab:CreateDropdown({
    end,
 })
 
-MainTab:CreateLabel("تنبيه: السكربت سيختار المهمة المناسبة لليفلك تلقائياً")
+-- حلقة تثبيت السلاح (موجودة هنا لضمان عدم الفصل)
+task.spawn(function()
+    while true do
+        task.wait(0.1)
+        if _G.farming and _G.Weapon ~= "" then
+            pcall(function()
+                local tool = game.Players.LocalPlayer.Backpack:FindFirstChild(_G.Weapon)
+                if tool then
+                    game.Players.LocalPlayer.Character.Humanoid:EquipTool(tool)
+                end
+            end)
+        end
+    end
+end)
