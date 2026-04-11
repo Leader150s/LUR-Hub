@@ -1,59 +1,74 @@
--- DMS HUB | AUTO DAMAGE & MAGNET ENGINE V10
+-- DMS HUB | SMART AUTO QUEST & KILL AURA V11
 local player = game.Players.LocalPlayer
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
--- وظيفة تجهيز السلاح (ضرورية للدمج)
-function equipWeapon()
-    pcall(function()
-        if _G.Weapon ~= "" then
-            local tool = player.Backpack:FindFirstChild(_G.Weapon) or player.Character:FindFirstChild(_G.Weapon)
-            if tool and tool.Parent == player.Backpack then
-                player.Character.Humanoid:EquipTool(tool)
-            end
+-- 1. وظيفة تثبيت السلاح (ما يتغير أبداً طول ما الفاروم شغال)
+task.spawn(function()
+    while true do
+        task.wait(0.1)
+        if _G.farming and _G.Weapon ~= "" then
+            pcall(function()
+                local tool = player.Backpack:FindFirstChild(_G.Weapon)
+                if tool then
+                    player.Character.Humanoid:EquipTool(tool)
+                end
+            end)
         end
-    end)
+    end
+end)
+
+-- 2. وظيفة الطيران الآمن (Tween)
+function toPos(targetCFrame)
+    local char = player.Character
+    if char and char:FindFirstChild("HumanoidRootPart") then
+        local dist = (char.HumanoidRootPart.Position - targetCFrame.p).Magnitude
+        local info = TweenInfo.new(dist/100, Enum.EasingStyle.Linear)
+        local tween = TweenService:Create(char.HumanoidRootPart, info, {CFrame = targetCFrame})
+        tween:Play()
+        return tween
+    end
 end
 
+-- 3. محرك الفارم الذكي (مهمات حسب اللفل + Kill Aura)
 task.spawn(function()
     while _G.farming do
-        task.wait(0.1)
+        task.wait(1)
         pcall(function()
-            equipWeapon()
+            local myLevel = player.Data.Level.Value
+            
+            -- هنا السكربت يحدد الوحش المناسب لليفلك (نظام بسيط كمثال)
+            -- يمكنك إضافة كل مهمات بلوكس فروت هنا
+            local targetMonster = "Mercenary" -- افتراضي
+            if myLevel >= 10 and myLevel < 15 then targetMonster = "Gorilla"
+            elseif myLevel >= 15 then targetMonster = "Bobby" end 
 
             for _, v in pairs(game.Workspace.Enemies:GetChildren()) do
-                if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
+                if v.Name == targetMonster and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
                     
-                    -- طيران انسيابي (Tween) لمنع الطرد
-                    local targetPos = v.HumanoidRootPart.CFrame * CFrame.new(0, 10, 0)
-                    local dist = (player.Character.HumanoidRootPart.Position - targetPos.p).Magnitude
-                    if dist > 5 then
-                        local tween = TweenService:Create(player.Character.HumanoidRootPart, TweenInfo.new(dist/100, Enum.EasingStyle.Linear), {CFrame = targetPos})
-                        tween:Play()
-                        tween.Completed:Wait()
-                    end
-
-                    -- حلقة "المربع المدمر" (الدمج التلقائي)
+                    -- طيران للمنطقة
+                    local targetPos = v.HumanoidRootPart.CFrame * CFrame.new(0, 11, 0)
+                    local tween = toPos(targetPos)
+                    if tween then tween.Completed:Wait() end
+                    
+                    -- حلقة المربع المدمر (Auto Clicker + Kill Aura)
                     while _G.farming and v.Humanoid.Health > 0 do
-                        player.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 10, 0)
-
-                        -- 1. تجميع كل الوحوش في "مربع" واحد (Magnet)
-                        for _, monster in pairs(game.Workspace.Enemies:GetChildren()) do
-                            if monster:FindFirstChild("HumanoidRootPart") and (monster.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude < 50 then
-                                monster.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame
-                                monster.HumanoidRootPart.CanCollide = false
+                        player.Character.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame * CFrame.new(0, 11, 0)
+                        
+                        -- سحب وتدميج كل الوحوش في المربع
+                        for _, m in pairs(game.Workspace.Enemies:GetChildren()) do
+                            if m:FindFirstChild("HumanoidRootPart") and (m.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude < 50 then
+                                m.HumanoidRootPart.CFrame = v.HumanoidRootPart.CFrame
+                                m.HumanoidRootPart.CanCollide = false
                                 
-                                -- 2. تفعيل الدمج التلقائي (بدون لمس يدوي)
-                                pcall(function()
-                                    if player.Character:FindFirstChildOfClass("Tool") then
-                                        -- استخدام الـ Activate + الهجوم الوهمي لضمان الدمج
-                                        player.Character:FindFirstChildOfClass("Tool"):Activate()
-                                        game:GetService("VirtualUser"):Button1Down(Vector2.new(0,0), game.Workspace.CurrentCamera.CFrame)
-                                    end
-                                end)
+                                -- الاوتو كلكر الداخلي (دمج فوري)
+                                if player.Character:FindFirstChildOfClass("Tool") then
+                                    player.Character:FindFirstChildOfClass("Tool"):Activate()
+                                    game:GetService("VirtualUser"):Button1Down(Vector2.new(0,0), game.Workspace.CurrentCamera.CFrame)
+                                end
                             end
                         end
-                        task.wait(0.01) -- سرعة هجوم نيكا القصوى
+                        task.wait(0.01)
                     end
                 end
             end
