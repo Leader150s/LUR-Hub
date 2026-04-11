@@ -2,7 +2,7 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
    Name = "DMS HUB ⚡ إصدار ملك القراصنة",
-   LoadingTitle = "DMS HUB | جاري الربط المباشر",
+   LoadingTitle = "DMS HUB | نظام المهمات الذكي",
    LoadingSubtitle = "بواسطة Leader150s",
    ConfigurationSaving = { Enabled = false },
    KeySystem = false,
@@ -14,8 +14,7 @@ local MainTab = Window:CreateTab("🏠 الرئيسية", 4483362458)
 _G.farming = false
 _G.Weapon = ""
 
--- جلب أسلحتك الحالية
-local function getTools()
+local function getMyTools()
     local t = {}
     for _, v in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
         if v:IsA("Tool") then table.insert(t, v.Name) end
@@ -27,9 +26,9 @@ local function getTools()
 end
 
 MainTab:CreateToggle({
-   Name = "⚔️ تشغيل الفارم الذكي",
+   Name = "⚔️ تشغيل الفاروم حسب اللفل (دمج حقيقي)",
    CurrentValue = false,
-   Flag = "FarmToggle",
+   Flag = "SmartFarm",
    Callback = function(Value)
       _G.farming = Value
       if Value then
@@ -39,8 +38,8 @@ MainTab:CreateToggle({
 })
 
 MainTab:CreateDropdown({
-   Name = "إختر سلاحك (سيتم القفل عليه)",
-   Options = getTools(),
+   Name = "إختر سلاحك",
+   Options = getMyTools(),
    CurrentOption = {""},
    MultipleOptions = false,
    Callback = function(Option)
@@ -48,16 +47,14 @@ MainTab:CreateDropdown({
    end,
 })
 
--- حلقة تثبيت السلاح (موجودة هنا لضمان عدم الفصل)
+-- تثبيت السلاح بقوة
 task.spawn(function()
     while true do
         task.wait(0.1)
         if _G.farming and _G.Weapon ~= "" then
             pcall(function()
                 local tool = game.Players.LocalPlayer.Backpack:FindFirstChild(_G.Weapon)
-                if tool then
-                    game.Players.LocalPlayer.Character.Humanoid:EquipTool(tool)
-                end
+                if tool then game.Players.LocalPlayer.Character.Humanoid:EquipTool(tool) end
             end)
         end
     end
