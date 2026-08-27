@@ -1,4 +1,4 @@
--- Kaizo Hub - Ultimate Edition for Roblox Delta
+-- Kaizo Hub - Ultimate Fixed Version
 local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
 local TweenService = game:GetService("TweenService")
@@ -27,20 +27,21 @@ local UICorner = Instance.new("UICorner")
 UICorner.CornerRadius = UDim.new(0, 14)
 UICorner.Parent = MainFrame
 
--- خلفية الواجهة (شفافة ومرتبة)
+-- خلفية صورتك الخاصة في الواجهة
 local BgImage = Instance.new("ImageLabel")
 BgImage.Size = UDim2.new(1, 0, 1, 0)
 BgImage.BackgroundTransparency = 1
-BgImage.Image = "rbxassetid://6034845063"
-BgImage.ImageTransparency = 0.85
-BgImage.ScaleType = Enum.ScaleType.Slice
+BgImage.Image = "rbxassetid://10511856020"
+BgImage.ImageTransparency = 0.4
+BgImage.ScaleType = Enum.ScaleType.Crop
 BgImage.Parent = MainFrame
 
--- عنوان الواجهة (باللغة الإنجليزية لمنع ظهور المربعات)
+-- عنوان الواجهة
 local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, 0, 0, 45)
-Title.BackgroundColor3 = Color3.fromRGB(25, 25, 40)
-Title.Text = "🪄 Kaizo Hub - Steal Egg"
+Title.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
+Title.BackgroundTransparency = 0.3
+Title.Text = "🪄┃˚₊ 𝑲𝒂𝒊𝒛𝒐 Hub"
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.TextSize = 16
 Title.Font = Enum.Font.GothamBold
@@ -50,12 +51,13 @@ local TitleCorner = Instance.new("UICorner")
 TitleCorner.CornerRadius = UDim.new(0, 14)
 TitleCorner.Parent = Title
 
--- زر تفعيل السرعة العالية (600)
+-- زر تفعيل السرعة الفائقة (تبدأ مفعلة مباشرة أو بضغطة زر بقوة 600)
 local SpeedBtn = Instance.new("TextButton")
 SpeedBtn.Size = UDim2.new(0.9, 0, 0, 42)
 SpeedBtn.Position = UDim2.new(0.05, 0, 0, 55)
 SpeedBtn.BackgroundColor3 = Color3.fromRGB(41, 128, 185)
-SpeedBtn.Text = "Speed Hack (600) 🔥"
+SpeedBtn.BackgroundTransparency = 0.2
+SpeedBtn.Text = "تفعيل سرعة خارقة (600) 🔥"
 SpeedBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 SpeedBtn.TextSize = 14
 SpeedBtn.Font = Enum.Font.GothamSemibold
@@ -70,14 +72,14 @@ SpeedBtn.MouseButton1Click:Connect(function()
     speedEnabled = not speedEnabled
     if speedEnabled then
         SpeedBtn.BackgroundColor3 = Color3.fromRGB(39, 174, 96)
-        SpeedBtn.Text = "Speed Enabled! ✅"
+        SpeedBtn.Text = "تم تفعيل السرعة بنجاح! ✅"
     else
         SpeedBtn.BackgroundColor3 = Color3.fromRGB(41, 128, 185)
-        SpeedBtn.Text = "Speed Disabled ❌"
+        SpeedBtn.Text = "تم إيقاف السرعة ❌"
     end
 end)
 
--- حلقة فرض السرعة الحقيقية (600) باستمرار لمنع الماب من إرجاعها
+-- حلقة لتثبيت السرعة الخارقة باستمرار
 task.spawn(function()
     while true do
         task.wait(0.2)
@@ -92,14 +94,15 @@ task.spawn(function()
     end
 end)
 
--- زر سرقة البيض الفعلي + الطيران السلس لمنطقة الأمان
+-- زر سرقة البيضة الفعلي (مع تفعيل اللمس وسحب البيضة صح) والطيران للأمان
 local StealBtn = Instance.new("TextButton")
 StealBtn.Size = UDim2.new(0.9, 0, 0, 42)
 StealBtn.Position = UDim2.new(0.05, 0, 0, 110)
 StealBtn.BackgroundColor3 = Color3.fromRGB(230, 126, 34)
-StealBtn.Text = "Auto Steal & Safe 🛒"
+StealBtn.BackgroundTransparency = 0.2
+StealBtn.Text = "سرقة البيضة والطيران للأمان 🛒"
 StealBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-StealBtn.TextSize = 14
+StealBtn.TextSize = 13
 StealBtn.Font = Enum.Font.GothamSemibold
 StealBtn.Parent = MainFrame
 
@@ -116,7 +119,7 @@ StealBtn.MouseButton1Click:Connect(function()
         local targetFound = false
         local savedPos = rootPart.CFrame
         
-        -- البحث عن البيض والاعشاش
+        -- البحث المتقدم عن البيض والاعشاش
         for _, obj in pairs(workspace:GetDescendants()) do
             local name = string.lower(obj.Name)
             if (name:find("egg") or name:find("nest") or name:find("بيض") or name:find("عش")) then
@@ -128,14 +131,16 @@ StealBtn.MouseButton1Click:Connect(function()
                 end
                 
                 if targetPart then
-                    rootPart.CFrame = targetPart.CFrame + Vector3.new(0, 2, 0)
+                    -- الانتقال للبيضة
+                    rootPart.CFrame = targetPart.CFrame + Vector3.new(0, 1.5, 0)
                     targetFound = true
                     
-                    -- تفعيل البرومبت أو الضغط للسرقة الحقيقية
+                    -- محاكاة اللمس الفعلي لجمع البيضة (TouchInterest)
                     task.wait(0.1)
-                    for _, child in pairs(obj:GetDescendants()) do
-                        if child:IsA("ProximityPrompt") then
-                            fireproximityprompt(child)
+                    for _, part in pairs(obj:GetDescendants()) do
+                        if part:IsA("BasePart") then
+                            firetouchinterest(rootPart, part, 0)
+                            firetouchinterest(rootPart, part, 1)
                         end
                     end
                     
@@ -145,8 +150,8 @@ StealBtn.MouseButton1Click:Connect(function()
         end
         
         if targetFound then
-            StealBtn.Text = "Flying to Safezone... 🕊️"
-            task.wait(0.2)
+            StealBtn.Text = "جاري الطيران لمنطقة الأمان.. 🕊️"
+            task.wait(0.25)
             
             local spawnLocation = workspace:FindFirstChild("SpawnLocation") or workspace:FindFirstChild("Spawn")
             local targetCFrame = savedPos + Vector3.new(0, 3, 0)
@@ -163,22 +168,23 @@ StealBtn.MouseButton1Click:Connect(function()
             tween:Play()
             tween.Completed:Wait()
             
-            StealBtn.Text = "Stolen & Safe! ✨"
+            StealBtn.Text = "تمت السرقة والوصول للأمان! ✨"
         else
-            StealBtn.Text = "No Eggs Found ⚠️"
+            StealBtn.Text = "ماكو بيض ظاهر حالياً ⚠️"
         end
         
         task.wait(2)
-        StealBtn.Text = "Auto Steal & Safe 🛒"
+        StealBtn.Text = "سرقة البيضة والطيران للأمان 🛒"
     end)
 end)
 
--- زر إخفاء القائمة مؤقتاً (موضوع تحت الأزرار تماماً)
+-- زر إخفاء القائمة مؤقتاً (موضوع تماماً تحت زر السرقة)
 local ToggleBtn = Instance.new("TextButton")
 ToggleBtn.Size = UDim2.new(0.9, 0, 0, 35)
 ToggleBtn.Position = UDim2.new(0.05, 0, 0, 165)
 ToggleBtn.BackgroundColor3 = Color3.fromRGB(127, 140, 141)
-ToggleBtn.Text = "Minimize Menu 📱"
+ToggleBtn.BackgroundTransparency = 0.2
+ToggleBtn.Text = "إخفاء القائمة مؤقتاً 📱"
 ToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 ToggleBtn.TextSize = 12
 ToggleBtn.Font = Enum.Font.Gotham
@@ -188,12 +194,12 @@ local ToggleCorner = Instance.new("UICorner")
 ToggleCorner.CornerRadius = UDim.new(0, 8)
 ToggleCorner.Parent = ToggleBtn
 
--- الأيقونة العائمة لإعادة فتح القائمة
+-- الأيقونة العائمة (صورتك الشخصية الدائرية التي تظهر على الشاشة عند إخفاء القائمة لإعادة فتحها)
 local OpenButton = Instance.new("ImageButton")
 OpenButton.Size = UDim2.new(0, 55, 0, 55)
 OpenButton.Position = UDim2.new(0, 15, 0.4, 0)
 OpenButton.BackgroundColor3 = Color3.fromRGB(30, 30, 45)
-OpenButton.Image = "rbxassetid://6031097225"
+OpenButton.Image = "rbxassetid://10511856020"
 OpenButton.Visible = false
 OpenButton.Parent = ScreenGui
 
