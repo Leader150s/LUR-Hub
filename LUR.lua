@@ -1,4 +1,4 @@
--- سكربت 🪄┃˚₊ 𝑲𝒂𝒊𝒛𝒐 النهائي مع صورتك الخاصة
+-- Kaizo Hub - Ultimate Edition for Roblox Delta
 local Players = game:GetService("Players")
 local CoreGui = game:GetService("CoreGui")
 local TweenService = game:GetService("TweenService")
@@ -15,9 +15,9 @@ ScreenGui.Parent = CoreGui
 
 -- الإطار الرئيسي للواجهة
 local MainFrame = Instance.new("Frame")
-MainFrame.Size = UDim2.new(0, 290, 0, 260)
-MainFrame.Position = UDim2.new(0.5, -145, 0.4, -130)
-MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+MainFrame.Size = UDim2.new(0, 300, 0, 270)
+MainFrame.Position = UDim2.new(0.5, -150, 0.4, -135)
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 25)
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
 MainFrame.Draggable = true
@@ -27,21 +27,20 @@ local UICorner = Instance.new("UICorner")
 UICorner.CornerRadius = UDim.new(0, 14)
 UICorner.Parent = MainFrame
 
--- خلفية السكربت (صورتك الشخصية اللي أرسلتها لكايدو ولِفي)
+-- خلفية الواجهة (شفافة ومرتبة)
 local BgImage = Instance.new("ImageLabel")
 BgImage.Size = UDim2.new(1, 0, 1, 0)
 BgImage.BackgroundTransparency = 1
-BgImage.Image = "rbxassetid://10511856020" -- دمج تصميم صورتك كخلفية فخمة للواجهة
-BgImage.ImageTransparency = 0.35
-BgImage.ScaleType = Enum.ScaleType.Crop
+BgImage.Image = "rbxassetid://6034845063"
+BgImage.ImageTransparency = 0.85
+BgImage.ScaleType = Enum.ScaleType.Slice
 BgImage.Parent = MainFrame
 
--- عنوان الواجهة
+-- عنوان الواجهة (باللغة الإنجليزية لمنع ظهور المربعات)
 local Title = Instance.new("TextLabel")
 Title.Size = UDim2.new(1, 0, 0, 45)
-Title.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
-Title.BackgroundTransparency = 0.3
-Title.Text = "🪄┃˚₊ 𝑲𝒂𝒊𝒛𝒐 Hub"
+Title.BackgroundColor3 = Color3.fromRGB(25, 25, 40)
+Title.Text = "🪄 Kaizo Hub - Steal Egg"
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.TextSize = 16
 Title.Font = Enum.Font.GothamBold
@@ -51,13 +50,12 @@ local TitleCorner = Instance.new("UICorner")
 TitleCorner.CornerRadius = UDim.new(0, 14)
 TitleCorner.Parent = Title
 
--- زر تفعيل السرعة
+-- زر تفعيل السرعة العالية (600)
 local SpeedBtn = Instance.new("TextButton")
-SpeedBtn.Size = UDim2.new(0.9, 0, 0, 40)
+SpeedBtn.Size = UDim2.new(0.9, 0, 0, 42)
 SpeedBtn.Position = UDim2.new(0.05, 0, 0, 55)
 SpeedBtn.BackgroundColor3 = Color3.fromRGB(41, 128, 185)
-SpeedBtn.BackgroundTransparency = 0.2
-SpeedBtn.Text = "تثبيت السرعة (65) 🔥"
+SpeedBtn.Text = "Speed Hack (600) 🔥"
 SpeedBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 SpeedBtn.TextSize = 14
 SpeedBtn.Font = Enum.Font.GothamSemibold
@@ -72,37 +70,36 @@ SpeedBtn.MouseButton1Click:Connect(function()
     speedEnabled = not speedEnabled
     if speedEnabled then
         SpeedBtn.BackgroundColor3 = Color3.fromRGB(39, 174, 96)
-        SpeedBtn.Text = "تم تفعيل السرعة بنجاح! ✅"
+        SpeedBtn.Text = "Speed Enabled! ✅"
     else
         SpeedBtn.BackgroundColor3 = Color3.fromRGB(41, 128, 185)
-        SpeedBtn.Text = "إيقاف السرعة ❌"
+        SpeedBtn.Text = "Speed Disabled ❌"
     end
 end)
 
--- حلقة لتطبيق السرعة باستمرار
+-- حلقة فرض السرعة الحقيقية (600) باستمرار لمنع الماب من إرجاعها
 task.spawn(function()
     while true do
-        task.wait(0.3)
+        task.wait(0.2)
         if speedEnabled then
             pcall(function()
                 local char = player.Character
                 if char and char:FindFirstChild("Humanoid") then
-                    char.Humanoid.WalkSpeed = 65
+                    char.Humanoid.WalkSpeed = 600
                 end
             end)
         end
     end
 end)
 
--- زر سرقة البيضة + طيران سريع سلس لمنطقة الأمان
+-- زر سرقة البيض الفعلي + الطيران السلس لمنطقة الأمان
 local StealBtn = Instance.new("TextButton")
-StealBtn.Size = UDim2.new(0.9, 0, 0, 40)
-StealBtn.Position = UDim2.new(0.05, 0, 0, 105)
+StealBtn.Size = UDim2.new(0.9, 0, 0, 42)
+StealBtn.Position = UDim2.new(0.05, 0, 0, 110)
 StealBtn.BackgroundColor3 = Color3.fromRGB(230, 126, 34)
-StealBtn.BackgroundTransparency = 0.2
-StealBtn.Text = "سرقة وطيران سريع للأمان 🛒"
+StealBtn.Text = "Auto Steal & Safe 🛒"
 StealBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-StealBtn.TextSize = 13
+StealBtn.TextSize = 14
 StealBtn.Font = Enum.Font.GothamSemibold
 StealBtn.Parent = MainFrame
 
@@ -119,6 +116,7 @@ StealBtn.MouseButton1Click:Connect(function()
         local targetFound = false
         local savedPos = rootPart.CFrame
         
+        -- البحث عن البيض والاعشاش
         for _, obj in pairs(workspace:GetDescendants()) do
             local name = string.lower(obj.Name)
             if (name:find("egg") or name:find("nest") or name:find("بيض") or name:find("عش")) then
@@ -133,7 +131,8 @@ StealBtn.MouseButton1Click:Connect(function()
                     rootPart.CFrame = targetPart.CFrame + Vector3.new(0, 2, 0)
                     targetFound = true
                     
-                    task.wait(0.15)
+                    -- تفعيل البرومبت أو الضغط للسرقة الحقيقية
+                    task.wait(0.1)
                     for _, child in pairs(obj:GetDescendants()) do
                         if child:IsA("ProximityPrompt") then
                             fireproximityprompt(child)
@@ -146,8 +145,8 @@ StealBtn.MouseButton1Click:Connect(function()
         end
         
         if targetFound then
-            StealBtn.Text = "جاري الطيران لمنطقة الأمان.. 🕊️"
-            task.wait(0.3)
+            StealBtn.Text = "Flying to Safezone... 🕊️"
+            task.wait(0.2)
             
             local spawnLocation = workspace:FindFirstChild("SpawnLocation") or workspace:FindFirstChild("Spawn")
             local targetCFrame = savedPos + Vector3.new(0, 3, 0)
@@ -155,31 +154,31 @@ StealBtn.MouseButton1Click:Connect(function()
                 targetCFrame = spawnLocation.CFrame + Vector3.new(0, 3, 0)
             end
             
+            -- طيران سلس سريع لمنطقة الأمان
             local distance = (rootPart.Position - targetCFrame.Position).Magnitude
-            local travelTime = math.clamp(distance / 120, 0.3, 1.2)
+            local travelTime = math.clamp(distance / 150, 0.2, 1.0)
             
             local tweenInfo = TweenInfo.new(travelTime, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
             local tween = TweenService:Create(rootPart, tweenInfo, {CFrame = targetCFrame})
             tween:Play()
             tween.Completed:Wait()
             
-            StealBtn.Text = "تمت السرقة والوصول للأمان! ✨"
+            StealBtn.Text = "Stolen & Safe! ✨"
         else
-            StealBtn.Text = "ماكو بيض ظاهر حالياً ⚠️"
+            StealBtn.Text = "No Eggs Found ⚠️"
         end
         
         task.wait(2)
-        StealBtn.Text = "سرقة وطيران سريع للأمان 🛒"
+        StealBtn.Text = "Auto Steal & Safe 🛒"
     end)
 end)
 
--- زر إخفاء القائمة المؤقت (موضوع تحت الأزرار مباشرة)
+-- زر إخفاء القائمة مؤقتاً (موضوع تحت الأزرار تماماً)
 local ToggleBtn = Instance.new("TextButton")
 ToggleBtn.Size = UDim2.new(0.9, 0, 0, 35)
-ToggleBtn.Position = UDim2.new(0.05, 0, 0, 155)
+ToggleBtn.Position = UDim2.new(0.05, 0, 0, 165)
 ToggleBtn.BackgroundColor3 = Color3.fromRGB(127, 140, 141)
-ToggleBtn.BackgroundTransparency = 0.2
-ToggleBtn.Text = "إخفاء القائمة مؤقتاً 📱"
+ToggleBtn.Text = "Minimize Menu 📱"
 ToggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 ToggleBtn.TextSize = 12
 ToggleBtn.Font = Enum.Font.Gotham
@@ -189,12 +188,12 @@ local ToggleCorner = Instance.new("UICorner")
 ToggleCorner.CornerRadius = UDim.new(0, 8)
 ToggleCorner.Parent = ToggleBtn
 
--- الأيقونة العائمة (صورة السكربت الخاصة بك التي تظهر على الشاشة لإعادة الفتح)
+-- الأيقونة العائمة لإعادة فتح القائمة
 local OpenButton = Instance.new("ImageButton")
 OpenButton.Size = UDim2.new(0, 55, 0, 55)
 OpenButton.Position = UDim2.new(0, 15, 0.4, 0)
 OpenButton.BackgroundColor3 = Color3.fromRGB(30, 30, 45)
-OpenButton.Image = "rbxassetid://10511856020" -- أيقونة صورتك الدائرية المعلقة
+OpenButton.Image = "rbxassetid://6031097225"
 OpenButton.Visible = false
 OpenButton.Parent = ScreenGui
 
