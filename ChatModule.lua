@@ -1,13 +1,14 @@
 -- ===================================================
--- 👑 LUR HUB - Global Chat Module (ChatModule.lua)
--- Updated: Public Chat Only & Fixed UI
+-- 👑 LUR HUB - Discord Webhook Chat Module (ChatModule.lua)
+-- Updated with Secure Webhook Proxy Edition
 -- ===================================================
 
+local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
 return function(ChatPage)
-    -- عنوان أو رأسية الشات العام
+    -- عنوان الشات العام
     local ChatTopBar = Instance.new("Frame", ChatPage)
     ChatTopBar.Size = UDim2.new(1, 0, 0, 26)
     ChatTopBar.BackgroundTransparency = 1
@@ -16,14 +17,14 @@ return function(ChatPage)
     local GlobalTitle = Instance.new("TextButton", ChatTopBar)
     GlobalTitle.Size = UDim2.new(1, 0, 1, 0)
     GlobalTitle.BackgroundColor3 = Color3.fromRGB(190, 25, 35)
-    GlobalTitle.Text = "🌐 الشات العام (LUR Hub)"
+    GlobalTitle.Text = "🌐 الشات العام المرتبط بديسكورد (LUR Hub)"
     GlobalTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
     GlobalTitle.Font = Enum.Font.SourceSansBold
     GlobalTitle.TextSize = 12
     GlobalTitle.ZIndex = 5
     Instance.new("UICorner", GlobalTitle).CornerRadius = UDim.new(0, 5)
 
-    -- شاشة الشات العام (مكبرة لتأخذ المساحة بالكامل بعد إزالة الخاص)
+    -- شاشة عرض الرسائل
     local GlobalChatScroll = Instance.new("ScrollingFrame", ChatPage)
     GlobalChatScroll.Size = UDim2.new(1, 0, 0.72, 0)
     GlobalChatScroll.Position = UDim2.new(0, 0, 0, 32)
@@ -38,12 +39,12 @@ return function(ChatPage)
     local GlobalLayout = Instance.new("UIListLayout", GlobalChatScroll)
     GlobalLayout.Padding = UDim.new(0, 4)
 
-    -- صندوق الإرسال والكتابة
+    -- صندوق الكتابة والإرسال
     local InputBox = Instance.new("TextBox", ChatPage)
     InputBox.Size = UDim2.new(0.72, 0, 0, 30)
     InputBox.Position = UDim2.new(0, 0, 0.82, 0)
     InputBox.BackgroundColor3 = Color3.fromRGB(25, 12, 16)
-    InputBox.PlaceholderText = "اكتب رسالتك هنا..."
+    InputBox.PlaceholderText = "اكتب رسالتك وتوصل للديسكورد..."
     InputBox.Text = ""
     InputBox.TextColor3 = Color3.fromRGB(255, 255, 255)
     InputBox.Font = Enum.Font.SourceSans
@@ -63,7 +64,7 @@ return function(ChatPage)
     SendBtn.ZIndex = 4
     Instance.new("UICorner", SendBtn).CornerRadius = UDim.new(0, 5)
 
-    -- فلتر الكلمات البذيئة والروابط
+    -- فلتر الكلمات البذيئة
     local badWords = {"انعل", "ابوك", "امك", "ختك", "أختك", "اختك", "رب", "دين", "كلب", "حمار", "سب", "كس", "قحبة", "طيز", "زب", "منيوك", "قواد", "http", "https", "www", "%.com", "%.gg"}
 
     local function filterText(msg)
@@ -76,7 +77,7 @@ return function(ChatPage)
         return msg
     end
 
-    -- دالة إضافة رسالة للشات
+    -- دالة إضافة الرسالة لواجهة الشات داخل اللعبة
     local function addChatMessage(senderName, userId, messageText)
         if not messageText or messageText == "" then return end
 
@@ -112,17 +113,41 @@ return function(ChatPage)
         end)
     end
 
-    -- ربط زر الإرسال
-    local function handleSendMessage()
-        local text = InputBox.Text
-        if text and string.gsub(text, "%s+", "") ~= "" then
-            addChatMessage(LocalPlayer.Name, LocalPlayer.UserId, text)
-            InputBox.Text = ""
-        end
+    -- رابط الويب هوك الخاص بك بعد تمريره عبر بروكسي آمن
+    local rawWebhook = "https://discord.com/api/webhooks/1551892613815074937/DNm0s4PFO6uzMybJ353SgRcV0aW90VmRd1rf8TAF3pzag3zyp2cqq4YO8wFV9My4TJp_"
+    -- استبدال رابط ديسكورد المباشر بـ بروكسي مدعوم ليتجنب الحظر
+    local proxyWebhook = string.gsub(rawWebhook, "discord.com", "webhook.lewisakura.moe")
+
+    -- دالة إرسال الرسالة إلى ديسكورد
+    local function sendToDiscord(text)
+        local filtered = filterText(text)
+        addChatMessage(LocalPlayer.Name, LocalPlayer.UserId, filtered)
+
+        pcall(function()
+            HttpService:PostAsync(proxyWebhook, HttpService:JSONEncode({
+                content = "👑 **[" .. LocalPlayer.Name .. "]**: " .. filtered
+            }))
+        end)
     end
 
-    SendBtn.MouseButton1Click:Connect(handleSendMessage)
-    InputBox.FocusLost:Connect(function(enterPressed) if enterPressed then handleSendMessage() end end)
+    -- ربط الأزرار
+    SendBtn.MouseButton1Click:Connect(function()
+        local text = InputBox.Text
+        if text and string.gsub(text, "%s+", "") ~= "" then
+            sendToDiscord(text)
+            InputBox.Text = ""
+        end
+    end)
 
-    addChatMessage("LUR System", 1, "مرحباً بك في الشات العام لـ LUR Hub!")
+    InputBox.FocusLost:Connect(function(enterPressed)
+        if enterPressed then
+            local text = InputBox.Text
+            if text and string.gsub(text, "%s+", "") ~= "" then
+                sendToDiscord(text)
+                InputBox.Text = ""
+            end
+        end
+    end)
+
+    addChatMessage("LUR System", 1, "تم ربط الشات العام بسيرفر ديسكورد بنجاح! 🚀")
 end
