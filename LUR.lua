@@ -1,6 +1,6 @@
 -- ===================================================
--- 👑 BEN HUB - Official Executing Hub & Custom Theme
--- Version 4.2 | Complete & Fixed Edition with External Chat
+-- 👑 LUR HUB - Official Executing Hub & Custom Theme
+-- Version 4.3 | Public Chat Only Edition
 -- ===================================================
 
 local Players = game:GetService("Players")
@@ -22,12 +22,12 @@ local function loadAsset(url, filename)
     return url
 end
 
-local BG_IMAGE_ID = loadAsset("https://f.top4top.io/p_3917lvgp10.png", "BenHub_BG.png")
-local TOGGLE_IMAGE_ID = loadAsset("https://g.top4top.io/p_3917nj3r41.png", "BenHub_Icon.png")
+local BG_IMAGE_ID = loadAsset("https://f.top4top.io/p_3917lvgp10.png", "LURHub_BG.png")
+local TOGGLE_IMAGE_ID = loadAsset("https://g.top4top.io/p_3917nj3r41.png", "LURHub_Icon.png")
 
 -- ==================== 2. إنشاء الشاشة الرئيسية ====================
 local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "BenHub_OfficialUI"
+ScreenGui.Name = "LURHub_OfficialUI"
 pcall(function() ScreenGui.Parent = CoreGui end)
 if not ScreenGui.Parent then ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui") end
 
@@ -45,7 +45,6 @@ local UIStroke = Instance.new("UIStroke", MainFrame)
 UIStroke.Color = Color3.fromRGB(220, 30, 40)
 UIStroke.Thickness = 2
 
--- الخلفية ZIndex = 1
 local BackgroundImg = Instance.new("ImageLabel", MainFrame)
 BackgroundImg.Size = UDim2.new(1, 0, 1, 0)
 BackgroundImg.Image = BG_IMAGE_ID
@@ -84,7 +83,7 @@ makeDraggable(MainFrame)
 
 -- ==================== 4. الزر الدائري للتصغير/الإظهار ====================
 local ToggleBtn = Instance.new("ImageButton", ScreenGui)
-ToggleBtn.Name = "BenHubToggleBtn"
+ToggleBtn.Name = "LURHubToggleBtn"
 ToggleBtn.Size = UDim2.new(0, 50, 0, 50)
 ToggleBtn.Position = UDim2.new(0.08, 0, 0.2, 0)
 ToggleBtn.Image = TOGGLE_IMAGE_ID
@@ -113,7 +112,7 @@ Instance.new("UICorner", TopBar).CornerRadius = UDim.new(0, 10)
 local Title = Instance.new("TextLabel", TopBar)
 Title.Size = UDim2.new(0.28, 0, 1, 0)
 Title.Position = UDim2.new(0.03, 0, 0, 0)
-Title.Text = "👑 BEN HUB"
+Title.Text = "👑 LUR HUB"
 Title.TextColor3 = Color3.fromRGB(255, 40, 50)
 Title.Font = Enum.Font.SourceSansBold
 Title.TextSize = 16
@@ -140,9 +139,9 @@ StatsLabel.ZIndex = 7
 
 local function updateRealStats()
     local realOnline = #Players:GetPlayers()
-    local totalRuns = 1845
+    local totalRuns = 1920
     pcall(function()
-        local res = game:HttpGet("https://api.counterapi.dev/v1/benhub_official_v3/runs/up")
+        local res = game:HttpGet("https://api.counterapi.dev/v1/lurhub_official_v1/runs/up")
         if res then
             local count = string.match(res, '"count":%s*(%d+)')
             if count then totalRuns = tonumber(count) end
@@ -227,7 +226,7 @@ local EggPage = createTab("سرقة البيض", "⚪")
 local AnimalPage = createTab("ركوب الحيوانات", "🐾")
 local ExecutorPage = createTab("مشغل السكربتات", "📜")
 local TutorialPage = createTab("شروحات", "📚")
-local ChatPage = createTab("الشات", "💬")
+local ChatPage = createTab("الشات العام", "💬")
 
 local function addScriptButton(page, title, description, scriptCode)
     local count = 0
@@ -292,7 +291,7 @@ local function addScriptButton(page, title, description, scriptCode)
     end)
 end
 
-addScriptButton(EggPage, "⚪ سكربت سرقة البيض الأسطوري", "طيران سريع + قراءة 1T / 100B والتنقل تلقائياً", function() print("Egg script active") end)
+addScriptButton(EggPage, "⚪ سكربت سرقة البيض الأسطوري", "طيران سريع + قراءة التخزين والتنقل تلقائياً", function() print("Egg script active") end)
 addScriptButton(AnimalPage, "🐾 سكربت ركوب الحيوانات", "تسريع الحركة والقفز + الأوتو فارم", function() if LocalPlayer.Character then LocalPlayer.Character.Humanoid.WalkSpeed = 80 end end)
 
 -- ==================== 7. قسم مشغل السكربتات (Executor) ====================
@@ -371,11 +370,12 @@ TutScroll.ZIndex = 4
 local TutLayout = Instance.new("UIListLayout", TutScroll)
 TutLayout.Padding = UDim.new(0, 6)
 
+-- تمت إضافة النص والروابط مع تصحيح المسافات
 local TutText = Instance.new("TextLabel", TutScroll)
 TutText.Size = UDim2.new(0.98, 0, 0, 60)
 TutText.BackgroundColor3 = Color3.fromRGB(25, 12, 16)
 TutText.BackgroundTransparency = 0.2
-TutText.Text = "🔥 من تطوير Ben 🔥\nهذه قنواتنا الرسمية لشرح السكربتات، الهكر، والتحميلات المباشرة:"
+TutText.Text = "🔥 أهلاً بك في LUR Hub 🔥\nهذه قنواتنا الرسمية لشرح السكربتات والتحميلات المباشرة:"
 TutText.TextColor3 = Color3.fromRGB(255, 215, 0)
 TutText.Font = Enum.Font.SourceSansBold
 TutText.TextSize = 11
@@ -409,7 +409,7 @@ addSocialLink("قناة اليوتيوب", "https://youtube.com/@gqj2?si=g29jzyA
 addSocialLink("قناة التليجرام", "https://t.me/Ben_5k", "✈", Color3.fromRGB(0, 136, 204))
 addSocialLink("سيرفر الديسكورد", "https://discord.gg/BedyzxgaG", "💬", Color3.fromRGB(88, 101, 242))
 
--- ==================== 9. نظام الشات (من ملفك الخارجي) ====================
+-- ==================== 9. نظام الشات العام (الملف الخارجي) ====================
 local success, chatModule = pcall(function()
     return loadstring(game:HttpGet("https://raw.githubusercontent.com/Leader150s/LUR-Hub/refs/heads/main/ChatModule.lua"))()
 end)
@@ -421,8 +421,7 @@ if success and type(chatModule) == "function" then
 else
     local ErrorLabel = Instance.new("TextLabel", ChatPage)
     ErrorLabel.Size = UDim2.new(1, 0, 1, 0)
-    ErrorLabel.BackgroundTransparency = 1
-    ErrorLabel.Text = "⚠️ خطأ في تحميل ملف الشات الخارجي."
+    ErrorLabel.BackgroundTransparency, ErrorLabel.Text = 1, "⚠️ خطأ في تحميل الشات العام."
     ErrorLabel.TextColor3 = Color3.fromRGB(255, 50, 50)
     ErrorLabel.Font = Enum.Font.SourceSansBold
     ErrorLabel.TextSize = 12
